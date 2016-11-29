@@ -8,7 +8,7 @@ exports._getUserMedia = function(success) {
         return function(constraints) {
             return function() {
                 var mediaDevicesGetUserMedia = null;
-                if (typeof navigator.mediaDevices != "undefined") {
+                if (typeof navigator.mediaDevices != "undefined" || typeof Adapter.mediaDevices != "undefined") {
                     mediaDevicesGetUserMedia =
                         function (constraints, success, error) {
                             navigator.mediaDevices.getUserMedia(constraints).then(success).catch(error);
