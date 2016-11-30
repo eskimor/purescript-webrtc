@@ -10,11 +10,15 @@ module WebRTC.RTC (
 , RTCIceCandidateInit(..)
 , RTCDataChannel(..)
 , newRTCPeerConnection
+, connectionState
+, iceConnectionState
 , closeRTCPeerConnection
 , addStream
 , onicecandidate
 , onnegotiationneeded
 , onaddstream
+, onconnectionstatechange
+, oniceconnectionstatechange
 , createOffer
 , createAnswer
 , setLocalDescription
@@ -32,9 +36,11 @@ import Prelude
 import Control.Monad.Aff (Aff, makeAff)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Exception (Error)
+import DOM.Event.Types (Event)
 import Data.Maybe (Maybe(..))
-import Data.Nullable (toMaybe, toNullable, Nullable)
+import Data.Nullable (toNullable, toMaybe, Nullable)
 import WebRTC.MediaStream (MediaStream)
+import WebRTC.MediaStream.Track (MediaStreamTrack)
 
 foreign import data RTCPeerConnection :: *
 
@@ -93,6 +99,9 @@ foreign import _addIceCandidate
      -> (Unit -> Eff e Unit)
      -> Eff e Unit
 
+foreign import connectionState :: forall e. RTCPeerConnection -> Eff e String
+foreign import iceConnectionState :: forall e. RTCPeerConnection -> Eff e String
+
 addIceCandidate :: forall e. Maybe RTCIceCandidateInit
                    -> RTCPeerConnection
                    -> Aff e Unit
@@ -100,6 +109,16 @@ addIceCandidate candidate connection = makeAff (_addIceCandidate (toNullable <<<
 
 foreign import onicecandidate
   :: forall e. (IceEvent -> Eff e Unit) ->
+               RTCPeerConnection ->
+               Eff e Unit
+
+foreign import onconnectionstatechange
+  :: forall e. (Event -> Eff e Unit) ->
+               RTCPeerConnection ->
+               Eff e Unit
+
+foreign import oniceconnectionstatechange
+  :: forall e. (Event -> Eff e Unit) ->
                RTCPeerConnection ->
                Eff e Unit
 
@@ -181,3 +200,12 @@ foreign import onmessageChannel
                Eff e Unit
 
 foreign import closeRTCPeerConnection :: forall e. RTCPeerConnection -> Eff e Unit
+
+foreign import data RTCStatsReport :: *
+
+foreign import _getStats :: forall e. (RTCStatsReport -> Eff e Unit) ->
+               (Error -> Eff e Unit) -> Nullable MediaStreamTrack ->
+               RTCPeerConnection -> Eff e Unit
+
+getStats :: forall e.  Maybe MediaStreamTrack -> RTCPeerConnection -> Aff e RTCStatsReport
+getStats mTrack pc = makeAff (\e s -> _getStats s e (toNullable mTrack) pc)

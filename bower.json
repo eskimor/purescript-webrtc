@@ -19,6 +19,7 @@
   "dependencies": {
     "purescript-aff": "^1.0.0",
     "purescript-unsafe-coerce": "^1.0.0",
-    "purescript-nullable": "^1.0.1"
+    "purescript-nullable": "^1.0.1",
+    "purescript-dom": "^1.2.0"
   }
 }

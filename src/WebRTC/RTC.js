@@ -10,6 +10,18 @@ exports.newRTCPeerConnection = function(ice) {
     };
 };
 
+exports.connectionState = function(pc) {
+    return function() {
+        return pc.connectionState;
+    };
+};
+
+exports.iceConnectionState = function(pc) {
+    return function() {
+        return pc.iceConnectionState;
+    };
+};
+
 exports.addStream = function(stream) {
     return function(pc) {
         return function() {
@@ -32,6 +44,26 @@ exports.onnegotiationneeded = function(f) {
     return function(pc) {
         return function() {
             pc.onnegotiationneeded = f;
+        };
+    };
+};
+
+exports.onconnectionstatechange = function(f) {
+    return function(pc) {
+        return function() {
+            pc.onconnectionstatechange = function(event) {
+                f(event)();
+            };
+        };
+    };
+};
+
+exports.oniceconnectionstatechange = function(f) {
+    return function(pc) {
+        return function() {
+            pc.oniceconnectionstatechange = function(event) {
+                f(event)();
+            };
         };
     };
 };
@@ -183,3 +215,14 @@ exports.fromRTCSessionDescription = function(description) {
            };
 };
 
+exports._getStats = function(success) {
+    return function (error) {
+        return function(track) {
+            return function (pc) {
+                return function () {
+                    return pc.getStats(track).then(success).catch(error);
+                };
+            };
+        };
+    };
+};
