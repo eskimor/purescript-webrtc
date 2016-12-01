@@ -226,3 +226,9 @@ exports._getStats = function(success) {
         };
     };
 };
+
+exports.getSenders = function (pc) {
+    return function () {
+        return Array.from(pc.getSenders());
+    };
+};

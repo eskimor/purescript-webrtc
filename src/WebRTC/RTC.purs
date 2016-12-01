@@ -30,6 +30,9 @@ module WebRTC.RTC (
 , send
 , onmessageChannel
 , fromRTCSessionDescription
+, getStats
+, getSenders
+, RTCStatsReport
 ) where
 
 import Prelude
@@ -41,6 +44,7 @@ import Data.Maybe (Maybe(..))
 import Data.Nullable (toNullable, toMaybe, Nullable)
 import WebRTC.MediaStream (MediaStream)
 import WebRTC.MediaStream.Track (MediaStreamTrack)
+import WebRTC.RTCRtpSender (RTCRtpSender)
 
 foreign import data RTCPeerConnection :: *
 
@@ -209,3 +213,5 @@ foreign import _getStats :: forall e. (RTCStatsReport -> Eff e Unit) ->
 
 getStats :: forall e.  Maybe MediaStreamTrack -> RTCPeerConnection -> Aff e RTCStatsReport
 getStats mTrack pc = makeAff (\e s -> _getStats s e (toNullable mTrack) pc)
+
+foreign import getSenders :: forall e. RTCPeerConnection -> Eff e (Array RTCRtpSender)
