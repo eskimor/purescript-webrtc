@@ -44,6 +44,17 @@ exports.createObjectURL = function(blob) {
 
 exports.getTracks = function(stream) {
     return function() {
-        return stream.getTracks();
+        return Array.from(stream.getTracks());
+    };
+};
+exports.getAudioTracks = function(stream) {
+    return function() {
+        return Array.from(stream.getAudioTracks());
+    };
+};
+
+exports.getVideoTracks = function(stream) {
+    return function() {
+        return Array.from(stream.getVideoTracks());
     };
 };

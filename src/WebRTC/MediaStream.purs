@@ -5,6 +5,8 @@ module WebRTC.MediaStream (
 , USER_MEDIA()
 , getUserMedia
 , getTracks
+, getAudioTracks
+, getVideoTracks
 , mediaStreamToBlob
 , createObjectURL
 , clone
@@ -36,6 +38,8 @@ getUserMedia c = makeAff (\e s -> _getUserMedia s e c)
 foreign import clone :: forall e. MediaStream -> Eff e MediaStream
 
 foreign import getTracks :: forall e. MediaStream -> Eff e (Array MediaStreamTrack)
+foreign import getAudioTracks :: forall e. MediaStream -> Eff e (Array MediaStreamTrack)
+foreign import getVideoTracks :: forall e. MediaStream -> Eff e (Array MediaStreamTrack)
 
 -- Stops all tracks in a stream
 stopStream :: forall e. MediaStream -> Eff e Unit
