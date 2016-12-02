@@ -1,17 +1,38 @@
 
+onConnectionHandlersForDrop = new Map();
 exports._onConnectionDrop = function(success) {
     return function(track) {
         return function (pc) {
             return function () {
-                var hasConnected = new Promise(function (resolve) { pc.oniceconnectionstatechange =
-                                                                    function (e) { return pc.iceConnectionState == "connected" && resolve();
-                                                                                 };
+                if (typeof onConnectionHandlersForDrop.get(pc) == "undefined") {
+                    console.log("Yep it was undefined - carry on ...");
+                    onConnectionHandlersForDrop.set(pc, []);
+                }
+                var callOnConnectionHandlersDrop= function (e) {
+                    var allTrue = true;
+                    for(var i=0; i < onConnectionHandlersForDrop.get(pc).length; i++) {
+                        allTrue = allTrue && onConnectionHandlersForDrop.get(pc)[i]();
+                    }
+                    if (allTrue) {
+                        onConnectionHandlersForDrop.delete(pc);
+                        pc.oniceconnectionstatechange = null;
+                    }
+                };
+                pc.oniceconnectionstatechange = callOnConnectionHandlersDrop;
+                var hasConnected = new Promise(function (resolve) { onConnectionHandlersForDrop.get(pc).push(function () { if (pc.iceConnectionState == "connected")
+                                                                                                                           { resolve();
+                                                                                                                             return true;
+                                                                                                                           }
+                                                                                                                           else
+                                                                                                                             return false;
+                                                                                                                         });
                                                                   });
                 return hasConnected.then(function() {
+                    console.log("in hasConnected!");
                     var is = function(stat, type) {
-                        isRemoteChromium = typeof stat.bytesReceived == "undefined";
-                        isRemote_ = typeof stat.isRemote == "undefined" ? isRemoteChromium : stat.isRemote;
-                        fixedType = stat.type == "ssrc" ? "inboundrtp" : stat.type; // Fix chrome again: ssrc can also be outboundrtp but this gets checked by isRemoteChromium
+                        var isRemoteChromium = typeof stat.bytesReceived == "undefined";
+                        var isRemote_ = typeof stat.isRemote == "undefined" ? isRemoteChromium : stat.isRemote;
+                        var fixedType = stat.type == "ssrc" ? "inboundrtp" : stat.type; // Fix chrome again: ssrc can also be outboundrtp but this gets checked by isRemoteChromium
                         //console.log("Checking type: " + stat.type + ", is remote: " + isRemote_);
                         return  (fixedType == type && !isRemote_);
                     }; // skip RTCP
@@ -25,7 +46,7 @@ exports._onConnectionDrop = function(success) {
                     };
 
                     var lastPackets = countdown = 0, timeout = 3; // seconds
-
+                    console.log("ok setting interval .....");
                     var iv = setInterval(function() { return pc.getStats(track).then(function (stats) {
                         try
                         {
@@ -41,10 +62,14 @@ exports._onConnectionDrop = function(success) {
                             lastPackets = packets;
                         }
                         catch(e) {
+                            console.log("Error while watching connection(try): " + e.message);
                             clearInterval(iv);
                         }
                     });}, 1000);
-                }).catch(function (e) { clearInterval(iv);}); // Clean up in case of error
+                }).catch(function (e) {
+                    console.log("Error while watching connection(promise): " + e.message);
+                    clearInterval(iv);
+                }); // Clean up in case of error
             };
         };
     };

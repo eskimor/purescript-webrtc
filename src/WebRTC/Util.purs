@@ -13,5 +13,5 @@ foreign import _onConnectionDrop :: forall e. (Nullable Int -> Eff e Unit) -> Nu
 
 -- Callback is called every second with the number of packets received. Once no packets are received for as long as 3 seconds the callback gets called with Nothing and then never again.
 onConnectionDrop :: forall e. (Maybe Int -> Eff e Unit) -> Maybe MediaStreamTrack -> RTCPeerConnection -> Eff e Unit
-onConnectionDrop callback mTrack pc = _onConnectionDrop (lmap toMaybe $ callback) (toNullable mTrack) pc
+onConnectionDrop callback mTrack pc = _onConnectionDrop (lmap toMaybe callback) (toNullable mTrack) pc
 
