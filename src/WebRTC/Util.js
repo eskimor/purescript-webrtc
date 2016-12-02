@@ -9,14 +9,18 @@ exports._onConnectionDrop = function(success) {
                     onConnectionHandlersForDrop.set(pc, []);
                 }
                 var callOnConnectionHandlersDrop= function (e) {
-                    var allTrue = true;
+                    var buf =[];
                     for(var i=0; i < onConnectionHandlersForDrop.get(pc).length; i++) {
-                        allTrue = allTrue && onConnectionHandlersForDrop.get(pc)[i]();
+                        var handler=onConnectionHandlersForDrop.get(pc)[i];
+                        if(!handler())
+                            buf.push(handler);
                     }
-                    if (allTrue) {
-                        onConnectionHandlersForDrop.delete(pc);
+                    if (buf.length == 0) {
                         pc.oniceconnectionstatechange = null;
+                        onConnectionHandlersForDrop.delete(pc);
                     }
+                    else
+                        onConnectionHandlersForDrop.set(pc, buf);
                 };
                 pc.oniceconnectionstatechange = callOnConnectionHandlersDrop;
                 var hasConnected = new Promise(function (resolve) { onConnectionHandlersForDrop.get(pc).push(function () { if (pc.iceConnectionState == "connected")
