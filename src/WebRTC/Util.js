@@ -55,6 +55,23 @@ exports._onConnectionDrop = function(success) {
                         try
                         {
                             var packets = findStat(stats, "inboundrtp").packetsReceived;
+                            // try {
+                            //     // console.log("Found stats:");
+                            //     // console.log(JSON.stringify(stats, null, 4));
+                            //     var framesPerSecond = stats["inbound_rtp_video_1"].framerateMean;
+                            //     var framesStdDev = stats["inbound_rtp_video_1"].framerateStdDev;
+                            //     console.log("Found track, with frames per second: " + framesPerSecond);
+                            //     console.log("Found track, with frames stdDev: " + framesStdDev);
+                            // } catch (e) { console.log("Error when receiving framesPerSecond:" + e.message); }
+                            // try {
+                            //     var arr= Array.from(stats.values());
+                            //     var stat=arr.find (function (val) { return (val.type == "ssrc" && val.mediaType == "video");});
+                            //     // console.log(JSON.stringify(stat, null, 4));
+                            //     console.log("Framerate received: " + stat.googFrameRateReceived);
+                            //     console.log("Framerate decoded: " + stat.googFrameRateDecoded);
+                            // }
+                            // catch (e) { console.log("no chrome here ;-)");}
+
                             countdown = (packets - lastPackets)? timeout : countdown - 1;
                             if (countdown <= 0) {
                                 clearInterval(iv);

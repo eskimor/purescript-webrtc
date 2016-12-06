@@ -10,3 +10,13 @@ exports.kind = function(track) {
         return track.kind;
     };
 };
+
+exports.addEventListener = function(event) {
+    return function (handler) {
+        return function(track) {
+            return function() {
+                return track.addEventListener(event, function(ev) {return handler(ev)();});
+            };
+        };
+    };
+};
