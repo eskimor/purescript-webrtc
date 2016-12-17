@@ -1,5 +1,8 @@
 // module WebRTC.MediaStream
 
+var Adapter = (typeof require === 'function' && require('webrtc-adapter'))
+    || (typeof window === 'object' && window.adapter);
+
 exports._getUserMedia = function(success) {
     return function(error) {
         return function(constraints) {
